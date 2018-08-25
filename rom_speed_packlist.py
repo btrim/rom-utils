@@ -41,10 +41,12 @@ fifty_hz_regions = ["World","Europe","France","Germany","Sweden","Hong Kong","Au
 
 # Parses a no-intro filename to map regions to speeds, either '60Hz' or '50Hz'
 def get_speeds(name):
-    match = re.search(".*?\((.*?)\).*",name)
-    if not match:
-       return "Unknown"
-    regions = [r.strip(" ") for r in match.group(1).split(",")]
+    tokens = re.findall("\((.*?)\)", name)
+    regions = []
+    if not tokens:
+        regions.append("Unknown")
+    for token in tokens:
+        regions.extend([r.strip(" ") for r in token.split(",")])
     speeds = []
     speeds.append("60Hz" if len(set(regions) & set(sixty_hz_regions)) > 0 else "50Hz")
     if len(set(regions) & set(fifty_hz_regions)) > 0:
@@ -117,6 +119,7 @@ if __name__ == '__main__':
 
     if args.region_50hz is not None:
         fifty_hz_regions.extend(args.region_50hz)
+
 
     print("60 Hz Regions: {}".format(",".join(sixty_hz_regions)), file=sys.stderr)
     print("50 Hz Regions: {}".format(",".join(fifty_hz_regions)), file=sys.stderr)
